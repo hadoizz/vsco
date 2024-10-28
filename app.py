@@ -53,4 +53,4 @@ def get_media(url):
     return jsonify({"media": media_urls})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8000)  # Updated to use port 8000
