@@ -6,7 +6,7 @@ import traceback as tb
 
 app = Flask(__name__)
 
-def download(vsco_media_url, get_video_thumbnails=True, save=False):
+def download(vsco_media_url, get_video_thumbnails=False, save=False):
     request_header = {"User-Agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64)"}
     request = ur.Request(vsco_media_url, headers=request_header)
     data = ur.urlopen(request).read()
@@ -30,12 +30,13 @@ def download(vsco_media_url, get_video_thumbnails=True, save=False):
         medias = json_data["medias"]["byId"]
         for media in medias:
             info = medias[media]["media"]
-            if not bool(info["isVideo"]) or get_video_thumbnails:
-                media_url = "https://" + str(info["responsiveUrl"].encode().decode("unicode-escape"))
-                media_urls.append({"type": "image", "url": media_url})
+            # Always include video URLs and exclude thumbnail fetching
             if bool(info["isVideo"]):
                 media_url = "https://" + str(info["videoUrl"].encode().decode("unicode-escape"))
                 media_urls.append({"type": "video", "url": media_url})
+            elif not bool(info["isVideo"]) and not get_video_thumbnails:
+                media_url = "https://" + str(info["responsiveUrl"].encode().decode("unicode-escape"))
+                media_urls.append({"type": "image", "url": media_url})
     except Exception as e:
         print("ERROR: Failed to extract image/video location!")
         tb.print_exc()
